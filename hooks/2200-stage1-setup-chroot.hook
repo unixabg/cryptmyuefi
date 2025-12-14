@@ -1,11 +1,7 @@
 #!/bin/bash
 set -e
 
-
-# Setup qemu emulator for aarch64
-echo_debug "- Copying qemu emulator to chroot ..."
-cp /usr/bin/qemu-aarch64-static ${_BUILDDIR}/root/usr/bin/
-
-
+# Since we only care about uefi this just sets the CHROOTDIR variable for
+# later and tests with an update.
 chroot_mount ${_BUILDDIR}/root
 chroot_update

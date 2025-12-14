@@ -4,25 +4,25 @@ set -e
 
 is_build_encrypted && {
     # Mount ext4 formatted LUKS
-    echo_debug "Attempting to mount /dev/mapper/crypt to /mnt/cryptmypi ..."
-    mkdir /mnt/cryptmypi
-    if mount /dev/mapper/crypt /mnt/cryptmypi
+    echo_debug "Attempting to mount /dev/mapper/crypt to /mnt/cryptmyuefi ..."
+    mkdir /mnt/cryptmyuefi
+    if mount /dev/mapper/crypt /mnt/cryptmyuefi
     then
-        echo_debug "- Mounted /dev/mapper/crypt to /mnt/cryptmypi"
+        echo_debug "- Mounted /dev/mapper/crypt to /mnt/cryptmyuefi"
     else
-        echo_error "- Aborting since we failed to mount /dev/mapper/crypt to /mnt/cryptmypi"
+        echo_error "- Aborting since we failed to mount /dev/mapper/crypt to /mnt/cryptmyuefi"
         exit 1
     fi
     echo
 } || {
     # Mount ext4 formatted ROOT
-    echo_debug "Attempting to mount ${_BLKDEV}${__PARTITIONPREFIX}2 to /mnt/cryptmypi ..."
-    mkdir /mnt/cryptmypi
-    if mount ${_BLKDEV}${__PARTITIONPREFIX}2 /mnt/cryptmypi
+    echo_debug "Attempting to mount ${_BLKDEV}${__PARTITIONPREFIX}2 to /mnt/cryptmyuefi ..."
+    mkdir /mnt/cryptmyuefi
+    if mount ${_BLKDEV}${__PARTITIONPREFIX}2 /mnt/cryptmyuefi
     then
-        echo_debug "- Mounted ${_BLKDEV}${__PARTITIONPREFIX}2 to /mnt/cryptmypi"
+        echo_debug "- Mounted ${_BLKDEV}${__PARTITIONPREFIX}2 to /mnt/cryptmyuefi"
     else
-        echo_error "- Aborting since we failed to mount ${_BLKDEV}${__PARTITIONPREFIX}2 to /mnt/cryptmypi"
+        echo_error "- Aborting since we failed to mount ${_BLKDEV}${__PARTITIONPREFIX}2 to /mnt/cryptmyuefi"
         exit 1
     fi
     echo
@@ -30,13 +30,13 @@ is_build_encrypted && {
 
 
 # Mount boot partition
-echo_debug "Attempting to mount ${_BLKDEV}${__PARTITIONPREFIX}1 to /mnt/cryptmypi/boot ..."
-mkdir /mnt/cryptmypi/boot
-if mount ${_BLKDEV}${__PARTITIONPREFIX}1 /mnt/cryptmypi/boot
+echo_debug "Attempting to mount ${_BLKDEV}${__PARTITIONPREFIX}1 to /mnt/cryptmyuefi/boot ..."
+mkdir -p /mnt/cryptmyuefi/boot/efi
+if mount ${_BLKDEV}${__PARTITIONPREFIX}1 /mnt/cryptmyuefi/boot/efi
 then
-    echo_debug "- Mounted ${_BLKDEV}${__PARTITIONPREFIX}1 to /mnt/cryptmypi/boot"
+    echo_debug "- Mounted ${_BLKDEV}${__PARTITIONPREFIX}1 to /mnt/cryptmyuefi/boot/efi"
 else
-    echo_error "- Aborting since we failed to mount ${_BLKDEV}${__PARTITIONPREFIX}1 to /mnt/cryptmypi/boot"
+    echo_error "- Aborting since we failed to mount ${_BLKDEV}${__PARTITIONPREFIX}1 to /mnt/cryptmyuefi/boot/efi"
     exit 1
 fi
 echo

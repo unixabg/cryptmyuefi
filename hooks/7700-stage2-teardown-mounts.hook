@@ -14,12 +14,12 @@ fi
 echo
 
 # Unmount root partition
-echo_debug "Attempting to unmount /mnt/cryptmypi ..."
-if umount /mnt/cryptmypi
+echo_debug "Attempting to unmount /mnt/cryptmyuefi ..."
+if umount /mnt/cryptmyuefi
 then
-    echo_debug "- Unmounted /mnt/cryptmypi"
+    echo_debug "- Unmounted /mnt/cryptmyuefi"
 else
-    echo_error "- Aborting since we failed to unmount /mnt/cryptmypi"
+    echo_error "- Aborting since we failed to unmount /mnt/cryptmyuefi"
     exit 1
 fi
 echo

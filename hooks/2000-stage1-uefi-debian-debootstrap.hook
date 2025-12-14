@@ -1,0 +1,46 @@
+#!/bin/bash
+#
+# Stage1: build a minimal Debian rootfs using debootstrap.
+# Called via: myhooks "uefi-debian-stage1-debootstrap"
+#
+
+set -e
+
+# Default stage1 root if not provided by env
+: "${_STAGE1_ROOT:="${_BUILDDIR}/root"}"
+
+# Expect _IMAGEURL="debootstrap:<release>:<mirror>"
+if [[ -z "${_IMAGEURL}" ]]; then
+    echo "ERROR: _IMAGEURL is not set; expected debootstrap:<release>:<arch>:<mirror>" >&2
+    exit 1
+fi
+
+if [[ "${_IMAGEURL}" =~ ^debootstrap:([^:]+):(.+)$ ]]; then
+    DEB_RELEASE="${BASH_REMATCH[1]}"
+    DEB_MIRROR="${BASH_REMATCH[2]}"
+else
+    echo "ERROR: malformed _IMAGEURL: '${_IMAGEURL}'" >&2
+    echo "       expected format: debootstrap:<release>:<arch>:<mirror>" >&2
+    exit 1
+fi
+
+# Simple sanity checks
+if ! command -v debootstrap >/dev/null 2>&1; then
+    echo "ERROR: debootstrap not found in PATH" >&2
+    exit 1
+fi
+
+echo "[*] Stage1: debootstrap ${DEB_RELEASE} (${ARCH}) from ${DEB_MIRROR}"
+echo "[*]         target rootfs: ${_STAGE1_ROOT}"
+
+mkdir -p "${_STAGE1_ROOT}"
+
+#debootstrap --cache-dir="${_CONFDIR}/cache" \
+debootstrap \
+    --variant=minbase \
+    "${DEB_RELEASE}" \
+    "${_STAGE1_ROOT}" \
+    "${DEB_MIRROR}"
+
+echo "[*] Stage1: debootstrap finished successfully."
+

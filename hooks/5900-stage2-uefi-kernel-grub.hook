@@ -1,0 +1,92 @@
+#!/bin/bash
+set -e
+
+# CHROOTDIR / CHROOT_MOUNTDIR should be set by 5800-stage2-setup-chroot.hook.
+CHROOT="${CHROOTDIR:-${CHROOT_MOUNTDIR:-/mnt/cryptmyuefi}}"
+
+echo "[*] Stage2: installing kernel and GRUB (UEFI) in chroot ${CHROOT}"
+
+# Basic sanity check
+if [ ! -d "${CHROOT}/etc" ]; then
+    echo "ERROR: ${CHROOT}/etc not found – is the target rootfs mounted?" >&2
+    exit 1
+fi
+
+# Update and install kernel + initramfs tools + UEFI grub
+chroot "${CHROOT}" bash -c '
+set -e
+apt-get update
+apt-get install -y linux-image-amd64 initramfs-tools grub2-common grub-efi-amd64 grub-efi-amd64-bin shim-signed
+
+# ensure cryptsetup-initramfs is present later if you do LUKS
+# apt-get install -y cryptsetup cryptsetup-initramfs
+
+update-initramfs -u -k all
+update-grub
+
+# Install GRUB to EFI System Partition
+grub-install \
+  --target=x86_64-efi \
+  --efi-directory=/boot/efi \
+  --boot-directory=/boot \
+  --bootloader-id=cryptmyuefi \
+  --recheck
+
+# Create removable-media fallback: EFI/BOOT/BOOTX64.EFI
+mkdir -p /boot/efi/EFI/BOOT
+if [ -f /boot/efi/EFI/cryptmyuefi/grubx64.efi ]; then
+  cp /boot/efi/EFI/cryptmyuefi/grubx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI
+fi
+'
+
+# Basic sanity check for uefi booting
+if [ ! -d "${CHROOT}/boot/efi/EFI/BOOT" ]; then
+    echo "ERROR: ${CHROOT}/boot/efi/EFI/BOOT not found – something didn't work on grub install." >&2
+    exit 1
+fi
+
+echo "Makeing sure BOOT/grub.cfg setup for GRUB installation."
+cat > "${CHROOT}/boot/efi/EFI/BOOT/grub.cfg" <<'EOF'
+search --file --no-floppy --set=root /boot/grub/grub.cfg
+set prefix=($root)/boot/grub
+configfile /boot/grub/grub.cfg
+EOF
+
+echo "Makeing sure /etc/fstab setup for installation."
+cat > "${CHROOT}/etc/fstab" <<EOF
+
+# Root filesystem
+${_BLKDEV}${__PARTITIONPREFIX}2    /              ext4    defaults,noatime        0      1
+
+# EFI system partition
+${_BLKDEV}${__PARTITIONPREFIX}1    /boot/efi      vfat    umask=0077              0      2
+EOF
+
+BOOT_LABEL="cryptmyuefi"
+
+echo "[*] Checking for existing UEFI entry '$BOOT_LABEL'..."
+
+EXISTING_BOOTNUM=$(efibootmgr -v | grep -i "$BOOT_LABEL" -B1 | head -n1 | sed -n 's/^Boot\([0-9A-Fa-f]\+\)\*.*/\1/p' || true)
+
+if [[ -n "${EXISTING_BOOTNUM}" ]]; then
+  echo "[*] Found existing entry Boot${EXISTING_BOOTNUM} – deleting it."
+  efibootmgr -b "${EXISTING_BOOTNUM}" -B
+else
+  echo "[*] No existing entry found."
+fi
+
+echo "[*] Creating new UEFI entry for '$BOOT_LABEL'..."
+
+echo "Makeing sure we add a uefi entry for GRUB installation."
+efibootmgr \
+    --create \
+    --disk ${_BLKDEV} \
+    --part 1 \
+    --label "cryptmyuefi" \
+    --loader /EFI/cryptmyuefi/grubx64.efi
+
+echo "[+] Done. Current UEFI entries:"
+efibootmgr -v | grep -i -A1 "$BOOT_LABEL"
+
+echo "[*] Stage2: kernel and GRUB installation completed."
+

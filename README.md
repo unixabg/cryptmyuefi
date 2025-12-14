@@ -1,27 +1,27 @@
-# cryptmypi 4.x
+# cryptmyuefi 4.x
 
-Assists in the full setup of [encrypted] Raspberry Pis. Able to maintain multiple setup configurations, for multiple usages, offers a multitude of modular configurations hooks providing out-of-the-box optional features for initramfs (while the system in encrypted) and the actual system (after boot).
+Assists in the full setup of [encrypted] devices with target of UEFI. Able to maintain multiple setup configurations, for multiple usages, offers a multitude of modular configurations hooks providing out-of-the-box optional features for initramfs (while the system in encrypted) and the actual system (after boot).
 
 **Note:** Only tested on:
 - Host OS: Debian 10 and Kali
-- Target OS: Kali, Raspberry Pi OS, and Ubuntu
-- Target Hardware: Raspberry Pi 2, 3, and 4
-- irc channel oftc/#cryptmypi
+- Target OS: FIXME
+- Target Hardware: FIXME
+- FIXME irc channel oftc/#cryptmyuefi
 
 ## How it works
 
 A configuration profile defines 2 stages:
 
-1. A base OS image is extracted.
-2. The build is written to an SD card.
+1. A base image is setup with debootstrap.
+2. The build is written to a block device.
 
 Optional configuration hooks can be set in any of the stages:
 - Configurations applied on stage 1 will be available to the stage 2. Each time the script runs it will check if a stage 1 build is already present, and will ask if it should be used or if it should be rebuilt.
-- Stage 2 can be executed as many times as wanted without affecting stage 1's build. Every configuration applied in stage 2 will be applied directly to the SD card.
+- Stage 2 can be executed as many times as wanted without affecting stage 1's build. Every configuration applied in stage 2 will be applied directly to the block device.
 
 ## Capabilities
 
-1. **FULL DISK ENCRYPTION**: Although the project can be used to set up an unencrypted RPi box, it is currently capable to set up a fully encrypted Kali, Pi OS, or Ubuntu Linux.
+1. **FULL DISK ENCRYPTION**: Although the project can be used to set up an unencrypted box, it is currently capable to set up a fully encrypted FIXME Debian and Kali Linux.
 
 - unlockable remotely through dropbear's ssh;
 - served through ethernet or wifi;
@@ -43,7 +43,7 @@ Optional configuration hooks can be set in any of the stages:
 
 Example configurations are provided in the project examples directory.
 
-Each example outlines a possible configurations scenario, from building a standard kali to building an encrypted drop box RPi for remote control.
+Each example outlines a possible configurations scenario, from building a standard kali to building an encrypted drop box for remote control.
 
 ## Installation
 
@@ -53,14 +53,14 @@ Clone this git repo.
 
 Simply:
 
-$ `./cryptmypi.sh configuration_profile_directory`
+$ `./cryptmyuefi.sh configuration_profile_directory`
 
 `configuration_profile_directory` should be an existing configuration directory. Use one of the provided examples or create your own.
 
 ## Explore stage2
-You can decrypt, mount and chroot an SD card by using the `explore` pre-configuration:
+You can decrypt, mount and chroot an block device by using the `explore` pre-configuration:
 
-$ `./cryptmypi.sh examples/explore configuration_profile_directory`
+$ `./cryptmyuefi.sh examples/explore configuration_profile_directory`
 
 There is an actual `explore` directory that contains a customized configuration profile. This profile overwrites the default stage1 and stage2 hooks so that no formatting, partitioning, etc. is done. It reads another configuration profile and mounts a block device accordingly.
 

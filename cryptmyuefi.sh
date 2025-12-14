@@ -5,7 +5,7 @@ set -e
 cat << EOF
 
 ###############################################################################
-                               C R Y P T M Y P I
+                               C R Y P T M Y U E F I
 ###############################################################################
 
 EOF
@@ -40,16 +40,10 @@ OPTIONS:
     -o,--output <file>          Redirects stdout and stderr to <file>
 
 Examples:
-    $0 examples/kali-unencrypted
-    Executes script using examples/kali-unencrypted/cryptmypi.conf definitions
+    $0 examples/debian-unencrypted
+    Executes script using examples/debian-unencrypted/cryptmyuefi.conf definitions
 
-    $0 --device /dev/sdb /examples/kali-complete
-    Executes script using examples/kali-complete/cryptmypi.conf
-    using /dev/sdb as destination block device
-
-    $0 -o execution.log my/config/path
-    Executes script using my/config/path/cryptmypi.conf
-    outputting stdout and stderr to execution.log
+    FIXME
 
 EOF
 }
@@ -177,7 +171,7 @@ cat << EOF
    - CONFIRM STAGE 1        = ${_STAGE1_CONFIRM}
    - STAGE 1 REBUILD        = ${_STAGE1_REBUILD}
    - CONFIRM STAGE 2        = ${_STAGE2_CONFIRM}
-   - DEVICE OVERRIDE        = ${_BLKDEV_OVERRIDE:-"none (using _BLKDEV on cryptmypi.conf)"}
+   - DEVICE OVERRIDE        = ${_BLKDEV_OVERRIDE:-"none (using _BLKDEV on cryptmyuefi.conf)"}
    - CONFIGURATION          = ${_CONFDIRNAME}
    - RM BUILD ON REBUILD    = ${_RMBUILD_ONREBUILD}
 -------------------------------------------------------------------------------
@@ -223,12 +217,12 @@ mkdir -p "${_FILESDIR}"
 
 
 # Check if configuration file is present
-if [ ! -f ${_CONFDIR}/cryptmypi.conf ]; then
+if [ ! -f ${_CONFDIR}/cryptmyuefi.conf ]; then
     cat << EOF
-ERROR: No 'cryptmypi.conf' file found in the config folder!
+ERROR: No 'cryptmyuefi.conf' file found in the config folder!
 
-    You might try copying the default ./cryptmypi.conf file to the ${_CONFDIRNAME}/ directory, then attempt to run again.
-    Remember to edit the ${_CONFDIRNAME}/cryptmypi.conf with your desired settings.
+    You might try copying the default ./cryptmyuefi.conf file to the ${_CONFDIRNAME}/ directory, then attempt to run again.
+    Remember to edit the ${_CONFDIRNAME}/cryptmyuefi.conf with your desired settings.
 
 Exiting ...
 EOF
@@ -237,7 +231,7 @@ fi
 
 
 # Load configuration file
-. ${_CONFDIR}/cryptmypi.conf
+. ${_CONFDIR}/cryptmyuefi.conf
 
 
 # Overriding _BLKDEV if _BLKDEV_OVERRIDE set
@@ -274,7 +268,7 @@ myhooks preconditions
 stage1(){
     cat << EOF
 ###############################################################################
-                               C R Y P T M Y P I
+                               C R Y P T M Y U E F I
                                ---- Stage 1 ----
 v${_VER}
 ###############################################################################
@@ -294,8 +288,6 @@ EOF
             cat << EOF
 
     1. Basic          (No encryption)
-    2. Encryption     (No remote unlock)
-    3. Complete       (Encryption + Dropbear)
     4. Exit
 
 EOF
@@ -305,15 +297,7 @@ EOF
             echo
             case $_SELECTION in
                 1)  echo "--- Basic SELECTED: No encryption"
-                    stage1profile_noencryption
-                    break
-                    ;;
-                2)  echo "--- Encryption SELECTED"
-                    stage1profile_encryption
-                    break
-                    ;;
-                3)  echo "--- Complete SELECTED"
-                    stage1profile_complete
+                    stage1profile_basic
                     break
                     ;;
                 4)  break
@@ -327,9 +311,9 @@ EOF
 }
 
 
-############################
-# STAGE 2 Encrypt & Write SD
-############################
+################################
+# STAGE 2 Encrypt & Write Target
+################################
 stage2(){
     # Simple check for type of sdcard block device
     if echo ${_BLKDEV} | grep -qs "mmcblk"
@@ -343,7 +327,7 @@ stage2(){
     cat << EOF
 
 ###############################################################################
-                               C R Y P T M Y P I
+                               C R Y P T M Y U E F I
                                ---- Stage 2 ----
 v${_VER}
 ###############################################################################
@@ -386,7 +370,7 @@ And below is the block device to be used with the script:
 block device:  ${_BLKDEV}
 
 If the block device is wrong DO NOT continue. Adjust the
-block device in the cryptmypi.conf file located in the
+block device in the cryptmyuefi.conf file located in the
 config directory.
 
 To continue type in the phrase 'Yes, do as I say!'
@@ -449,11 +433,11 @@ execute(){
 cleanup(){
     chroot_umount || true
     umount ${_BLKDEV}* || true
-    umount /mnt/cryptmypi || {
-        umount -l /mnt/cryptmypi || true
+    umount /mnt/cryptmyuefi || {
+        umount -l /mnt/cryptmyuefi || true
         umount -f /dev/mapper/crypt || true
     }
-    [ -d /mnt/cryptmypi ] && rm -r /mnt/cryptmypi || true
+    [ -d /mnt/cryptmyuefi ] && rm -r /mnt/cryptmyuefi || true
     cryptsetup luksClose crypt || true
 }
 trap cleanup EXIT
@@ -510,5 +494,5 @@ main(){
 main
 
 
-echo "Goodbye from cryptmypi (${_VER})."
+echo "Goodbye from cryptmyuefi (${_VER})."
 exit 0

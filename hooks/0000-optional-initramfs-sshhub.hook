@@ -181,17 +181,17 @@ EOT
         echo_debug "        ... sshhub host definition not found: creating it"
         cat <<EOT >> $_USER_HOME/.ssh/config
 
-# cryptmypi-sshhub-entry-start
+# cryptmyuefi-sshhub-entry-start
 Host hub
     Hostname sshhub.de
     User ${_SSHHUB_USERNAME}
     IdentityFIle ${_SSHHUB_LOCAL_KEYFILE}
-# cryptmypi-sshhub-entry-end
+# cryptmyuefi-sshhub-entry-end
 EOT
     fi
 
     echo_debug "    Creating/Replacing ${_SSHHUB_REFERENCE}-boot host definition ..."
-    _ENTRYCOMMENT="# cryptmypi-${_SSHHUB_REFERENCE}-boot-entry"
+    _ENTRYCOMMENT="# cryptmyuefi-${_SSHHUB_REFERENCE}-boot-entry"
     sed -i "/^${_ENTRYCOMMENT}-start/,/^${_ENTRYCOMMENT}-end/{/^${_ENTRYCOMMENT}-start/!{/^${_ENTRYCOMMENT}-end/!d}}" $_USER_HOME/.ssh/config
     sed -i "/${_ENTRYCOMMENT}/d" $_USER_HOME/.ssh/config
 cat <<EOT >> $_USER_HOME/.ssh/config

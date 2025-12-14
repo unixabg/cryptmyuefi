@@ -1,7 +1,7 @@
 chroot_mount(){
     export CHROOTDIR=$1
 
-    echo_debug "Preparing RPi chroot mount structure at '${CHROOTDIR}'."
+    echo_debug "Preparing chroot mount structure at '${CHROOTDIR}'."
     [ -z "${CHROOTDIR}" ] && {
         echo_error "Chroot dir was not defined! Aborting..."
         exit 1
@@ -29,7 +29,7 @@ chroot_umount(){
     [ -z "${CHROOTDIR}" ] && {
         exit 1
     }
-    echo_debug "Tearing down RPi chroot mount structure at '${CHROOTDIR}'."
+    echo_debug "Tearing down chroot mount structure at '${CHROOTDIR}'."
 
     # revert ld.so.preload fix
     test -e ${CHROOTDIR}/etc/ld.so.preload && {

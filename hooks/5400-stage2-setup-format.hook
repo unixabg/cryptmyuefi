@@ -29,5 +29,5 @@ is_build_encrypted && {
 
 # Format boot partition
 echo_debug "Formatting Boot Partition"
-mkfs.vfat ${_BLKDEV}${__PARTITIONPREFIX}1
+mkfs.vfat -F32 ${_BLKDEV}${__PARTITIONPREFIX}1
 echo

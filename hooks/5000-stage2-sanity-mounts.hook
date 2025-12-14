@@ -4,9 +4,9 @@ set -e
 
 echo_debug "Attempt to unmount just to be safe ..."
 umount ${_BLKDEV}* || true
-umount /mnt/cryptmypi || {
-    umount -l /mnt/cryptmypi || true
+umount /mnt/cryptmyuefi || {
+    umount -l /mnt/cryptmyuefi || true
     umount -f /dev/mapper/crypt || true
 }
-[ -d /mnt/cryptmypi ] && rm -r /mnt/cryptmypi || true
+[ -d /mnt/cryptmyuefi ] && rm -r /mnt/cryptmyuefi || true
 cryptsetup luksClose crypt || true

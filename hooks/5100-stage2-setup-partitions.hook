@@ -1,10 +1,22 @@
 #!/bin/bash
 set -e
 
+echo_debug "Partitioning target device ${_BLKDEV} for UEFI (GPT + ESP + root)"
 
-echo_debug "Partitioning SD Card"
-parted ${_BLKDEV} --script -- mklabel msdos
-parted ${_BLKDEV} --script -- mkpart primary fat32 0 256
-parted ${_BLKDEV} --script -- mkpart primary 256 -1
+# Wipe old partition table
+parted --script "${_BLKDEV}" mklabel gpt
+
+# Create ESP: partition 1, FAT32, from 1MiB to ${_ESP_SIZE_MIB}MiB
+parted --script "${_BLKDEV}" \
+    mkpart ESP fat32 1MiB "${_ESP_SIZE_MIB}MiB"
+
+# Mark it as an EFI System Partition
+parted --script "${_BLKDEV}" \
+    set 1 esp on
+
+# Create root partition: partition 2, rest of the disk
+parted --script "${_BLKDEV}" \
+    mkpart primary ext4 "${_ESP_SIZE_MIB}MiB" 100%
+
 sync
 sync

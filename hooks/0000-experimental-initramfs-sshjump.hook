@@ -183,17 +183,17 @@ EOT
         echo_debug "        ... sshjump host definition not found: creating it"
         cat <<EOT >> $_USER_HOME/.ssh/config
 
-# cryptmypi-sshjump-entry-start
+# cryptmyuefi-sshjump-entry-start
 Host hub
     Hostname ${_SSHJUMP_SERVER}
     User ${_SSHJUMP_USERNAME}
     IdentityFIle ${_SSHJUMP_LOCAL_KEYFILE}
-# cryptmypi-sshjump-entry-end
+# cryptmyuefi-sshjump-entry-end
 EOT
     fi
 
     echo_debug "    Creating/Replacing ${_SSHJUMP_REFERENCE}-boot host definition ..."
-    _ENTRYCOMMENT="# cryptmypi-${_SSHJUMP_REFERENCE}-boot-entry"
+    _ENTRYCOMMENT="# cryptmyuefi-${_SSHJUMP_REFERENCE}-boot-entry"
     sed -i "/^${_ENTRYCOMMENT}-start/,/^${_ENTRYCOMMENT}-end/{/^${_ENTRYCOMMENT}-start/!{/^${_ENTRYCOMMENT}-end/!d}}" $_USER_HOME/.ssh/config
     sed -i "/${_ENTRYCOMMENT}/d" $_USER_HOME/.ssh/config
 cat <<EOT >> $_USER_HOME/.ssh/config
