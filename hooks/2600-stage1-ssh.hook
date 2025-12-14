@@ -8,18 +8,23 @@ echo_debug "Attempting to set ssh up ..."
 if [ -z "${_SSH_LOCAL_KEYFILE}" ]; then
     echo_error "ERROR: _SSH_LOCAL_KEYFILE variable was not set. Exiting..."
     exit 1
-else
-    test -f "${_SSH_LOCAL_KEYFILE}" || {
-        echo_error "ERROR: Obligatory SSH keyfile '${_SSH_LOCAL_KEYFILE}' could not be found. Exiting..."
-        exit 1
-    }
 fi
 
+# Normalize to always end with .pub
+# - If it's "id_rsa"      -> "id_rsa.pub"
+# - If it's "id_rsa.pub"  -> "id_rsa.pub"
+_SSH_LOCAL_KEYFILE="${_SSH_LOCAL_KEYFILE%.pub}.pub"
+
+# Now verify the normalized file exists
+if [ ! -f "${_SSH_LOCAL_KEYFILE}" ]; then
+    echo_error "ERROR: Obligatory SSH public key '${_SSH_LOCAL_KEYFILE}' could not be found. Exiting..."
+    exit 1
+fi
 
 # Append our key to the default user's authorized_keys file
 echo_debug "Creating authorized_keys file"
 mkdir -p "${CHROOTDIR}/root/.ssh/"
-cat "${_SSH_LOCAL_KEYFILE}.pub" > "${CHROOTDIR}/root/.ssh/authorized_keys"
+cat "${_SSH_LOCAL_KEYFILE}" > "${CHROOTDIR}/root/.ssh/authorized_keys"
 chmod 600 "${CHROOTDIR}/root/.ssh/authorized_keys"
 
 
